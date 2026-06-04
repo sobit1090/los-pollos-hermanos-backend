@@ -16,7 +16,7 @@ import menuRoutes from "./routes/menu.js";
 dotenv.config({ path: "./config/config.env" });
 
 const app = express();
-
+app.set("trust proxy", 1);
 // ─── Security Middleware ──────────────────────────────────
 app.use(helmet());
 app.use(mongoSanitize()); // prevent NoSQL injection

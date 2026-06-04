@@ -14,6 +14,7 @@ export const isAuthenticated = catchAsync(async (req, res, next) => {
   try {
     decoded = jwt.verify(token, process.env.JWT_SECRET);
   } catch (err) {
+    console.error("❌ JWT verification failed:", err.message);
     return next(new ErrorHandler("Invalid or expired token, please login again", 401));
   }
 

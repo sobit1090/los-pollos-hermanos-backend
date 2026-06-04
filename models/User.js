@@ -83,8 +83,15 @@ userSchema.methods.comparePassword = async function (password) {
 };
 
 userSchema.methods.getJWT = function () {
+  let expire = process.env.JWT_EXPIRE || "7d";
+  
+  // If it's a bare number/numeric string (e.g. "7" or 7), default it to days ("7d")
+  if (/^\d+$/.test(expire.toString())) {
+    expire = `${expire}d`;
+  }
+
   return jwt.sign({ _id: this._id }, process.env.JWT_SECRET, {
-    expiresIn: process.env.JWT_EXPIRE || "7d",
+    expiresIn: expire,
   });
 };
 

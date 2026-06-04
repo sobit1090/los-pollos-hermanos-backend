@@ -7,27 +7,23 @@
 
 import dotenv from "dotenv";
 dotenv.config({ path: "./config/config.env" });
-
 import mongoose from "mongoose";
-import app from "./app.js";
+import app from "../app.js";
 
-const PORT = process.env.PORT || 4000;
+let connected = false;
 
-const connectAndListen = async () => {
-  try {
-    await mongoose.connect(process.env.MONGO_URI, {
-      dbName: "los-pollos",
-      serverSelectionTimeoutMS: 30000,
-    });
-    console.log("✅ MongoDB connected");
+async function connectDB() {
+  if (connected) return;
 
-    app.listen(PORT, () => {
-      console.log(`🚀 Server running on http://localhost:${PORT}`);
-    });
-  } catch (err) {
-    console.error("❌ Failed to start server:", err.message);
-    process.exit(1);
-  }
-};
+  await mongoose.connect(process.env.MONGO_URI, {
+    dbName: "los-pollos",
+  });
 
-connectAndListen();
+  connected = true;
+  console.log("✅ MongoDB connected");
+}
+
+export default async function handler(req, res) {
+  await connectDB();
+  return app(req, res);
+}

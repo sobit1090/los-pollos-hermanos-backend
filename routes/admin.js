@@ -17,17 +17,31 @@ const router = express.Router();
 // All admin routes require authentication + admin role
 router.use(isAuthenticated, isAdmin);
 
+// ─── User list + create ───────────────────────────────────────────────────────
 router.get("/users", getAllUsers);
-router.post("/register/addnewuser", addNewUser); // Admin: create new user
-router.get("/user/:id", getSingleUser);
-router.put("/user/:id", upload.single("photo"), updateUserAdmin); // Admin: update user details/photo/addresses
-router.get("/user/:id/orders", getUserOrders); // Admin: get a specific user's orders
+router.post("/register/addnewuser", addNewUser);
 
-// Plural route compatibility
-router.delete("/user/:id", deleteUser);
+// ─── Single user — support BOTH /user/:id AND /users/:id ─────────────────────
+// The frontend calls /admin/users/:id (plural) for detail + orders
+// The backend originally only had /admin/user/:id (singular)
+// Both are supported here so nothing breaks.
+
+router.get("/users/:id", getSingleUser);
+router.get("/user/:id", getSingleUser);
+
+router.put("/users/:id", upload.single("photo"), updateUserAdmin);
+router.put("/user/:id", upload.single("photo"), updateUserAdmin);
+
+router.get("/users/:id/orders", getUserOrders);
+router.get("/user/:id/orders", getUserOrders);
+
 router.delete("/users/:id", deleteUser);
+router.delete("/user/:id", deleteUser);
+
+router.put("/users/:id/role", updateUserRole);
 router.put("/user/:id/role", updateUserRole);
-router.put("/user/:id/toggle", toggleUserStatus);
+
 router.put("/users/:id/toggle", toggleUserStatus);
+router.put("/user/:id/toggle", toggleUserStatus);
 
 export default router;

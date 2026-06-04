@@ -34,7 +34,7 @@ const userSchema = new mongoose.Schema(
     password: {
       type: String,
       minlength: [6, "Password must be at least 6 characters"],
-      select: false, // never returned by default
+      select: false,
     },
     photo: {
       public_id: { type: String, default: "" },
@@ -42,7 +42,8 @@ const userSchema = new mongoose.Schema(
     },
     role: {
       type: String,
-      enum: ["user", "admin"],
+      // ✅ Added "moderator" — was missing, causing updateUserAdmin to silently fail
+      enum: ["user", "admin", "moderator"],
       default: "user",
     },
     addresses: [addressSchema],
@@ -57,17 +58,26 @@ const userSchema = new mongoose.Schema(
     resetPasswordToken: String,
     resetPasswordExpire: Date,
   },
-  { timestamps: true }
+  {
+    timestamps: true,
+    toJSON: { virtuals: true },
+    toObject: { virtuals: true },
+  }
 );
 
-// ─── Hash password before save ────────────────────────────
+// ─── Virtual: lastActive (alias for lastLogin — used by frontend) ─────────────
+userSchema.virtual("lastActive").get(function () {
+  return this.lastLogin || null;
+});
+
+// ─── Hash password before save ────────────────────────────────────────────────
 userSchema.pre("save", async function (next) {
   if (!this.isModified("password") || !this.password) return next();
   this.password = await bcrypt.hash(this.password, 12);
   next();
 });
 
-// ─── Methods ──────────────────────────────────────────────
+// ─── Methods ──────────────────────────────────────────────────────────────────
 userSchema.methods.comparePassword = async function (password) {
   return bcrypt.compare(password, this.password);
 };
@@ -84,7 +94,7 @@ userSchema.methods.getPasswordResetToken = function () {
     .createHash("sha256")
     .update(resetToken)
     .digest("hex");
-  this.resetPasswordExpire = Date.now() + 15 * 60 * 1000; // 15 minutes
+  this.resetPasswordExpire = Date.now() + 15 * 60 * 1000;
   return resetToken;
 };
 

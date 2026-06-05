@@ -10,6 +10,8 @@ dotenv.config({ path: "./config/config.env" });
 import mongoose from "mongoose";
 import app from "./app.js";
 
+const PORT = process.env.PORT || 8080;
+
 let connected = false;
 
 async function connectDB() {
@@ -23,7 +25,16 @@ async function connectDB() {
   console.log("✅ MongoDB connected");
 }
 
-export default async function handler(req, res) {
-  await connectDB();
-  return app(req, res);
-}
+const startServer = async () => {
+  try {
+    await connectDB();
+    app.listen(PORT, () => {
+      console.log(`🚀 Server running locally on http://localhost:${PORT}`);
+    });
+  } catch (err) {
+    console.error("❌ Failed to start server:", err.message);
+    process.exit(1);
+  }
+};
+
+startServer();

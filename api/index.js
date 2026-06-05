@@ -7,9 +7,6 @@
 
 import connectDB from "../config/database.js";
 import app from "../app.js";
-import serverless from "serverless-http";
-
-const handler = serverless(app);
 
 // Routes that must respond instantly without waiting for DB
 const DB_FREE_ROUTES = [
@@ -34,7 +31,7 @@ export default async function (req, res) {
 
   // Health & OAuth routes respond instantly — no DB wait
   if (DB_FREE_ROUTES.includes(url)) {
-    return handler(req, res);
+    return app(req, res);
   }
 
   // If DB not ready yet, wait up to 5 s then fail gracefully
@@ -52,5 +49,5 @@ export default async function (req, res) {
     }
   }
 
-  return handler(req, res);
+  return app(req, res);
 }

@@ -29,7 +29,9 @@ const buildOrigins = () => {
     "http://localhost:3000",
     "http://localhost:4000",
     // Hardcoded Vercel URLs as fallback in case env var isn't loaded yet
-    "https://los-pollos-hermanos-front.vercel.app",
+    "https://los-pollos-hermanos-ten.vercel.app",
+    "https://los-pollos-hermanos-sobits-projects-f6fb2783.vercel.app",
+    "https://los-pollos-hermanos-git-main-sobits-projects-f6fb2783.vercel.app",
   ];
 
   // Accept comma-separated list in FRONTEND_URL, e.g.

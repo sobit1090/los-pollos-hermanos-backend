@@ -8,7 +8,7 @@
 import dotenv from "dotenv";
 dotenv.config({ path: "./config/config.env" });
 import mongoose from "mongoose";
-import app from "../app.js";
+import app from "./app.js";
 
 let connected = false;
 

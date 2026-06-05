@@ -3,3 +3,5 @@ node_modules
 .env.example
 config.env
 config.env.example
+config/config.env
+config/config.env.example

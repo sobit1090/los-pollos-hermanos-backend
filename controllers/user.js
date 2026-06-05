@@ -192,8 +192,8 @@ export const googleCallback = catchAsync(async (req, res, next) => {
 
   res.cookie("token", token, cookieOptions);
   
-  // Redirect to frontend profile page
-  res.redirect(process.env.FRONTEND_URL || "http://localhost:5173/profile");
+  const frontendUrl = (process.env.FRONTEND_URL || "http://localhost:5173").replace(/\/$/, "");
+  res.redirect(`${frontendUrl}/profile`);
 });
 
 // ─── Logout ───────────────────────────────────────────────

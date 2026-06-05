@@ -13,6 +13,7 @@ import orderRoutes from "./routes/order.js";
 import adminRoutes from "./routes/admin.js";
 import menuRoutes from "./routes/menu.js";
 
+// Load .env locally; on Vercel env vars come from the dashboard (no file needed)
 dotenv.config({ path: "./config/config.env" });
 
 const app = express();

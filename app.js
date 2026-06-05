@@ -28,6 +28,8 @@ const buildOrigins = () => {
     "http://localhost:5173",
     "http://localhost:3000",
     "http://localhost:4000",
+    // Hardcoded Vercel URLs as fallback in case env var isn't loaded yet
+    "https://los-pollos-hermanos-front.vercel.app",
   ];
 
   // Accept comma-separated list in FRONTEND_URL, e.g.
@@ -44,26 +46,24 @@ const buildOrigins = () => {
 
 const allowedOrigins = buildOrigins();
 
-app.use(
-  cors({
-    origin: (origin, callback) => {
-      // Allow server-to-server requests (no origin header) and all allowed origins
-      if (!origin || allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        console.warn(`CORS blocked origin: ${origin}`);
-        callback(new Error(`CORS: Origin ${origin} not allowed`));
-      }
-    },
-    credentials: true,
-    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization", "Cookie"],
-    exposedHeaders: ["Set-Cookie"],
-  })
-);
+// ── Respond to OPTIONS preflight with the SAME corsOptions (not bare cors())
+const corsOptions = {
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      console.warn(`CORS blocked origin: ${origin}`);
+      callback(new Error(`CORS: Origin ${origin} not allowed`));
+    }
+  },
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization", "Cookie"],
+  exposedHeaders: ["Set-Cookie"],
+};
 
-// ── Respond to OPTIONS preflight immediately (before other middleware) ─────────
-app.options("*", cors());
+app.use(cors(corsOptions));
+app.options("*", cors(corsOptions));
 
 // ─── Security ─────────────────────────────────────────────────────────────────
 app.use(

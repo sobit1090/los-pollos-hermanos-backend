@@ -7,6 +7,7 @@
 
 import connectDB from "../config/database.js";
 import app from "../app.js";
+import mongoose from "mongoose";
 
 // Routes that must respond instantly without waiting for DB
 const DB_FREE_ROUTES = [
@@ -16,15 +17,9 @@ const DB_FREE_ROUTES = [
 ];
 
 // Start DB connection in background immediately at module load
-let dbReady = false;
-let dbError = null;
-
-connectDB()
-  .then(() => { dbReady = true; })
-  .catch((err) => {
-    dbError = err.message;
-    console.error("❌ DB connect failed on cold start:", err.message);
-  });
+connectDB().catch((err) => {
+  console.error("❌ DB connect failed on cold start:", err.message);
+});
 
 export default async function (req, res) {
   const url = (req.url || "").split("?")[0];
@@ -35,16 +30,16 @@ export default async function (req, res) {
   }
 
   // If DB not ready yet, wait up to 5 s then fail gracefully
-  if (!dbReady) {
+  if (mongoose.connection.readyState !== 1) {
     try {
       await Promise.race([
-        connectDB().then(() => { dbReady = true; }),
+        connectDB(),
         new Promise((_, reject) => setTimeout(() => reject(new Error("DB timeout")), 5000)),
       ]);
     } catch (err) {
       return res.status(503).json({
         success: false,
-        message: "Server is starting up, please try again in a moment.",
+        message: "Server is starting up, please try again in a moment. DB State: " + mongoose.connection.readyState,
       });
     }
   }

@@ -20,11 +20,10 @@ const connectDB = async () => {
     const conn = await mongoose.connect(process.env.MONGO_URI, {
       dbName: "los-pollos",
       // ⚡ Reduced from 30s → 8s so cold-starts fail fast instead of causing 504
-      serverSelectionTimeoutMS: 8000,
-      // How long a single socket operation can take
-      socketTimeoutMS: 20000,
-      // How long to wait for a connection from the pool
-      connectTimeoutMS: 8000,
+      // ⚡ Vercel Hobby plan = 10s max. Keep timeouts well under that.
+      serverSelectionTimeoutMS: 5000,
+      socketTimeoutMS: 15000,
+      connectTimeoutMS: 5000,
     });
 
     cachedConnection = conn;
